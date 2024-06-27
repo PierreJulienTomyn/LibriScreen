@@ -1,5 +1,6 @@
 using LibriScreen.Interfaces;
 using LibriScreen.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -17,10 +18,22 @@ namespace LibriScreen.Services
         /// <summary>
         /// Constructeur pour JsonDataStorage.
         /// </summary>
-        /// <param name="filePath">Chemin du fichier JSON utilisé pour le stockage.</param>
+        /// <param name="filePath">Chemin relatif du fichier JSON utilisé pour le stockage.</param>
         public JsonDataStorage(string filePath)
         {
-            _filePath = filePath;
+            // Utiliser un chemin absolu basé sur le répertoire de l'application
+            string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string absoluteFilePath = Path.Combine(appDirectory, filePath);
+
+            // Mettre à jour le champ _filePath avec le chemin absolu
+            _filePath = absoluteFilePath;
+
+            // S'assurer que le répertoire existe
+            string directory = Path.GetDirectoryName(_filePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
         }
 
         /// <summary>
@@ -29,7 +42,7 @@ namespace LibriScreen.Services
         /// <param name="items">Collection d'éléments médias à sauvegarder.</param>
         public void SaveItems(IEnumerable<MediaItem> items)
         {
-            var json = JsonSerializer.Serialize(items, new JsonSerializerOptions { WriteIndented = true });
+            string json = JsonSerializer.Serialize(items, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_filePath, json); // Écriture du JSON formatté dans le fichier
         }
 
@@ -42,8 +55,8 @@ namespace LibriScreen.Services
             if (!File.Exists(_filePath))
                 return new List<MediaItem>(); // Retourne une liste vide si le fichier n'existe pas
 
-            var json = File.ReadAllText(_filePath);
-            var items = JsonSerializer.Deserialize<IEnumerable<MediaItem>>(json);
+            string json = File.ReadAllText(_filePath);
+            IEnumerable<MediaItem> items = JsonSerializer.Deserialize<IEnumerable<MediaItem>>(json);
 
             return items ?? new List<MediaItem>(); // Retourne une liste vide si la désérialisation retourne null
         }
