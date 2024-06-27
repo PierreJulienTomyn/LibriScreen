@@ -42,18 +42,23 @@ namespace LibriScreen.UI
                 switch (choice)
                 {
                     case "1":
+                        Console.Clear();
                         ShowAddNewItem();
                         break;
                     case "2":
+                        Console.Clear();
                         DisplayItems(_mediaManager.GetAllItems());
                         break;
                     case "3":
+                        Console.Clear();
                         ShowUpdateItem();
                         break;
                     case "4":
+                        Console.Clear();
                         ShowDeleteItem();
                         break;
                     case "5":
+                        Console.Clear();
                         ShowSearch();
                         break;
                     case "6":
