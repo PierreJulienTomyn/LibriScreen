@@ -30,6 +30,7 @@ namespace LibriScreen.Services
         /// <param name="item">L'élément média à ajouter.</param>
         public void AddItem(MediaItem item)
         {
+            ValidateMediaItem(item);
             item.Id = _items.Count > 0 ? _items.Max(i => i.Id) + 1 : 1; // Attribue un ID unique
             _items.Add(item);
             _dataStorage.SaveItems(_items); // Sauvegarde la liste mise à jour
@@ -42,6 +43,7 @@ namespace LibriScreen.Services
         /// <param name="updatedItem">Les nouvelles données pour l'élément.</param>
         public void UpdateItem(int id, MediaItem updatedItem)
         {
+            ValidateMediaItem(updatedItem);
             var item = _items.FirstOrDefault(i => i.Id == id);
             if (item != null)
             {
@@ -95,10 +97,22 @@ namespace LibriScreen.Services
         public IEnumerable<MediaItem> SearchItems(string searchTerm)
         {
             return _items.Where(i => 
-                (i.Title != null && i.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (i.Genre != null && i.Genre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                i.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                i.Genre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
             );
         }
 
+        /// <summary>
+        /// Valide les champs obligatoires d'un élément média.
+        /// </summary>
+        /// <param name="item">L'élément média à valider.</param>
+        private void ValidateMediaItem(MediaItem item)
+        {
+            if (string.IsNullOrWhiteSpace(item.Title))
+                throw new ArgumentException("Le titre est obligatoire.");
+
+            if (string.IsNullOrWhiteSpace(item.Genre))
+                throw new ArgumentException("Le genre est obligatoire.");
+        }
     }
 }

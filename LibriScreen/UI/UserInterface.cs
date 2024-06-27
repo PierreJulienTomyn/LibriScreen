@@ -73,19 +73,29 @@ namespace LibriScreen.UI
             var item = new MediaItem();
 
             Console.Write("Titre : ");
-            item.Title = Console.ReadLine();
+            item.Title = Console.ReadLine() ?? throw new ArgumentException("Le titre est obligatoire.");
+            while (string.IsNullOrWhiteSpace(item.Title))
+            {
+                Console.WriteLine("Le titre est obligatoire. Veuillez entrer un titre : ");
+                item.Title = Console.ReadLine() ?? throw new ArgumentException("Le titre est obligatoire.");
+            }
 
             Console.Write("Genre : ");
-            item.Genre = Console.ReadLine();
+            item.Genre = Console.ReadLine() ?? throw new ArgumentException("Le genre est obligatoire.");
+            while (string.IsNullOrWhiteSpace(item.Genre))
+            {
+                Console.WriteLine("Le genre est obligatoire. Veuillez entrer un genre : ");
+                item.Genre = Console.ReadLine() ?? throw new ArgumentException("Le genre est obligatoire.");
+            }
 
             Console.Write("Note personnelle (0 à 10) : ");
-            item.Rating = double.Parse(Console.ReadLine());
+            item.Rating = double.TryParse(Console.ReadLine(), out double rating) ? rating : throw new ArgumentException("Note invalide.");
 
             Console.Write("Date de visionnage/lecture (YYYY-MM-DD) : ");
-            item.DateWatchedOrRead = DateTime.Parse(Console.ReadLine());
+            item.DateWatchedOrRead = DateTime.TryParse(Console.ReadLine(), out DateTime dateWatchedOrRead) ? dateWatchedOrRead : throw new ArgumentException("Date invalide.");
 
             Console.Write("Type de média (Film, Série, Livre) : ");
-            item.MediaType = Enum.Parse<MediaType>(Console.ReadLine(), true);
+            item.MediaType = Enum.TryParse(Console.ReadLine(), true, out MediaType mediaType) ? mediaType : throw new ArgumentException("Type de média invalide.");
 
             _mediaManager.AddItem(item);
             Console.WriteLine("Média ajouté avec succès !");
@@ -97,7 +107,7 @@ namespace LibriScreen.UI
         public void ShowUpdateItem()
         {
             Console.Write("Entrez l'ID du média à mettre à jour : ");
-            int id = int.Parse(Console.ReadLine());
+            int id = int.TryParse(Console.ReadLine(), out int mediaId) ? mediaId : throw new ArgumentException("ID invalide.");
 
             var existingItem = _mediaManager.GetAllItems().FirstOrDefault(i => i.Id == id);
             if (existingItem == null)
@@ -108,20 +118,30 @@ namespace LibriScreen.UI
 
             var updatedItem = new MediaItem { Id = id };
 
-            Console.Write($"Titre ({existingItem.Title ?? "aucun"}) : ");
-            updatedItem.Title = Console.ReadLine() ?? existingItem.Title; // Prend la nouvelle entrée ou garde l'ancienne si la nouvelle est null
+            Console.Write($"Titre ({existingItem.Title}) : ");
+            updatedItem.Title = Console.ReadLine() ?? existingItem.Title;
+            while (string.IsNullOrWhiteSpace(updatedItem.Title))
+            {
+                Console.WriteLine("Le titre est obligatoire. Veuillez entrer un titre : ");
+                updatedItem.Title = Console.ReadLine() ?? existingItem.Title;
+            }
 
-            Console.Write($"Genre ({existingItem.Genre ?? "aucun"}) : ");
+            Console.Write($"Genre ({existingItem.Genre}) : ");
             updatedItem.Genre = Console.ReadLine() ?? existingItem.Genre;
+            while (string.IsNullOrWhiteSpace(updatedItem.Genre))
+            {
+                Console.WriteLine("Le genre est obligatoire. Veuillez entrer un genre : ");
+                updatedItem.Genre = Console.ReadLine() ?? existingItem.Genre;
+            }
 
             Console.Write($"Note personnelle ({existingItem.Rating}) : ");
-            updatedItem.Rating = double.Parse(Console.ReadLine());
+            updatedItem.Rating = double.TryParse(Console.ReadLine(), out double rating) ? rating : existingItem.Rating;
 
             Console.Write($"Date de visionnage/lecture ({existingItem.DateWatchedOrRead:yyyy-MM-dd}) : ");
-            updatedItem.DateWatchedOrRead = DateTime.Parse(Console.ReadLine());
+            updatedItem.DateWatchedOrRead = DateTime.TryParse(Console.ReadLine(), out DateTime dateWatchedOrRead) ? dateWatchedOrRead : existingItem.DateWatchedOrRead;
 
             Console.Write($"Type de média ({existingItem.MediaType}) : ");
-            updatedItem.MediaType = Enum.Parse<MediaType>(Console.ReadLine(), true);
+            updatedItem.MediaType = Enum.TryParse(Console.ReadLine(), true, out MediaType mediaType) ? mediaType : existingItem.MediaType;
 
             _mediaManager.UpdateItem(id, updatedItem);
             Console.WriteLine("Média mis à jour avec succès !");
@@ -133,7 +153,7 @@ namespace LibriScreen.UI
         public void ShowDeleteItem()
         {
             Console.Write("Entrez l'ID du média à supprimer : ");
-            int id = int.Parse(Console.ReadLine());
+            int id = int.TryParse(Console.ReadLine(), out int mediaId) ? mediaId : throw new ArgumentException("ID invalide.");
 
             _mediaManager.DeleteItem(id);
             Console.WriteLine("Média supprimé avec succès !");
@@ -145,7 +165,7 @@ namespace LibriScreen.UI
         public void ShowSearch()
         {
             Console.Write("Entrez un terme de recherche : ");
-            string searchTerm = Console.ReadLine();
+            string searchTerm = Console.ReadLine() ?? throw new ArgumentException("Le terme de recherche est obligatoire.");
 
             var results = _mediaManager.SearchItems(searchTerm);
             DisplayItems(results);

@@ -16,12 +16,12 @@ namespace LibriScreen.Models
         /// <summary>
         /// Titre de l'élément média.
         /// </summary>
-        public string? Title { get; set; }
+        public string Title { get; set; } = null!;
 
         /// <summary>
         /// Genre de l'élément média.
         /// </summary>
-        public string? Genre { get; set; }
+        public string Genre { get; set; } = null!;
 
         /// <summary>
         /// Note attribuée à l'élément média.
